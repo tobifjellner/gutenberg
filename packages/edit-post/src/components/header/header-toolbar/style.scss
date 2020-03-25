@@ -19,21 +19,6 @@
 			display: flex;
 		}
 	}
-	&.show-icon-labels {
-		button[aria-label] {
-			display: block;
-			&::after {
-				content: attr(aria-label);
-				display: block;
-				font-size: 12px;
-			}
-			&.is-primary {
-				&::after {
-					color: $black;
-				}
-			}
-		}
-	}
 }
 
 // Block toolbar when fixed to the top of the screen.
