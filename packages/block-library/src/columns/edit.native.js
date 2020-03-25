@@ -17,10 +17,7 @@ import {
 } from '@wordpress/block-editor';
 import { withDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
-import {
-	withPreferredColorScheme,
-	useResizeObserver,
-} from '@wordpress/compose';
+import { useResizeObserver } from '@wordpress/compose';
 import { createBlock } from '@wordpress/blocks';
 /**
  * Internal dependencies
@@ -132,7 +129,7 @@ function ColumnsEditContainer( {
 					__experimentalMoverDirection={
 						getColumnsInRow( width, columnCount ) > 1
 							? 'horizontal'
-							: ''
+							: undefined
 					}
 					flatListProps={ {
 						contentContainerStyle: {
@@ -142,11 +139,14 @@ function ColumnsEditContainer( {
 						horizontal: true,
 						scrollEnabled: false,
 					} }
-					containerStyle={ { flex: 1 } }
 					allowedBlocks={ ALLOWED_BLOCKS }
-					columnsSettings={ columnsSettings }
-					customOnAdd={ onAddNextColumn }
-					customOnDelete={ columnCount === 1 && onDelete }
+					customBlockProps={ {
+						...columnsSettings,
+						readableContentViewStyle: { flex: 1 },
+						customOnAdd: onAddNextColumn,
+						customOnDelete:
+							columnCount === 1 ? onDelete : undefined,
+					} }
 				/>
 			</View>
 		</>
@@ -193,7 +193,9 @@ const ColumnsEditContainerWrapper = withDispatch(
 		updateColumns( previousColumns, newColumns ) {
 			const { clientId } = ownProps;
 			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
-			const { getBlocks } = registry.select( 'core/block-editor' );
+			const { getBlocks, getBlockAttributes } = registry.select(
+				'core/block-editor'
+			);
 
 			let innerBlocks = getBlocks( clientId );
 
@@ -201,10 +203,15 @@ const ColumnsEditContainerWrapper = withDispatch(
 			const isAddingColumn = newColumns > previousColumns;
 
 			if ( isAddingColumn ) {
+				// Get verticalAlignment from Columns block to set the same to new Column
+				const { verticalAlignment } = getBlockAttributes( clientId );
+
 				innerBlocks = [
 					...innerBlocks,
 					...times( newColumns - previousColumns, () => {
-						return createBlock( 'core/column' );
+						return createBlock( 'core/column', {
+							verticalAlignment,
+						} );
 					} ),
 				];
 			} else {
@@ -222,11 +229,18 @@ const ColumnsEditContainerWrapper = withDispatch(
 			const { replaceInnerBlocks, selectBlock } = dispatch(
 				'core/block-editor'
 			);
-			const { getBlocks } = registry.select( 'core/block-editor' );
+			const { getBlocks, getBlockAttributes } = registry.select(
+				'core/block-editor'
+			);
+
+			// Get verticalAlignment from Columns block to set the same to new Column
+			const { verticalAlignment } = getBlockAttributes( clientId );
 
 			const innerBlocks = getBlocks( clientId );
 
-			const insertedBlock = createBlock( 'core/column' );
+			const insertedBlock = createBlock( 'core/column', {
+				verticalAlignment,
+			} );
 
 			innerBlocks.push( insertedBlock );
 
@@ -242,39 +256,21 @@ const ColumnsEditContainerWrapper = withDispatch(
 )( ColumnsEditContainer );
 
 const ColumnsEdit = ( props ) => {
-	const { clientId, isSelected, getStylesFromColorScheme } = props;
-	const { hasChildren, columnCount } = useSelect(
+	const { clientId } = props;
+	const { columnCount } = useSelect(
 		( select ) => {
-			const { getBlocks, getBlockCount } = select( 'core/block-editor' );
+			const { getBlockCount } = select( 'core/block-editor' );
 
 			return {
-				hasChildren: getBlocks( clientId ).length > 0,
 				columnCount: getBlockCount( clientId ),
 			};
 		},
 		[ clientId ]
 	);
 
-	if ( ! isSelected && ! hasChildren ) {
-		return (
-			<View
-				style={ [
-					getStylesFromColorScheme(
-						styles.columnsPlaceholder,
-						styles.columnsPlaceholderDark
-					),
-					! hasChildren && {
-						...styles.marginVerticalDense,
-						...styles.marginHorizontalNone,
-					},
-				] }
-			/>
-		);
-	}
-
 	return (
 		<ColumnsEditContainerWrapper columnCount={ columnCount } { ...props } />
 	);
 };
 
-export default withPreferredColorScheme( ColumnsEdit );
+export default ColumnsEdit;

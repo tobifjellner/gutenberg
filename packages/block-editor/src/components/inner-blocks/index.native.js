@@ -113,10 +113,10 @@ class InnerBlocks extends Component {
 			clientId,
 			renderAppender,
 			__experimentalMoverDirection,
-			customOnDelete,
-			containerStyle,
 			flatListProps,
-			columnsSettings,
+			customBlockProps,
+			marginVertical,
+			marginHorizontal,
 		} = this.props;
 		const { templateInProcess } = this.state;
 
@@ -124,16 +124,16 @@ class InnerBlocks extends Component {
 			<>
 				{ ! templateInProcess && (
 					<BlockList
+						marginVertical={ marginVertical }
+						marginHorizontal={ marginHorizontal }
 						rootClientId={ clientId }
 						renderAppender={ renderAppender }
 						withFooter={ false }
 						__experimentalMoverDirection={
 							__experimentalMoverDirection
 						}
-						customOnDelete={ customOnDelete }
-						containerStyle={ containerStyle }
 						flatListProps={ flatListProps }
-						columnsSettings={ columnsSettings }
+						customBlockProps={ customBlockProps }
 					/>
 				) }
 			</>
