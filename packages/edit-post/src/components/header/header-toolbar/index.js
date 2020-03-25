@@ -28,6 +28,7 @@ function HeaderToolbar() {
 	const {
 		hasFixedToolbar,
 		showInserter,
+		isMediumOrLarger,
 		isTextModeEnabled,
 		previewDeviceType,
 		showIconLabels,
@@ -40,6 +41,9 @@ function HeaderToolbar() {
 			showInserter:
 				select( 'core/edit-post' ).getEditorMode() === 'visual' &&
 				select( 'core/editor' ).getEditorSettings().richEditingEnabled,
+			isMediumOrLarger: select( 'core/viewport' ).isViewportMatch(
+				'>= medium'
+			),
 			isTextModeEnabled:
 				select( 'core/edit-post' ).getEditorMode() === 'text',
 			previewDeviceType: select(
@@ -65,7 +69,7 @@ function HeaderToolbar() {
 	return (
 		<NavigableToolbar
 			className={ classnames( 'edit-post-header-toolbar', {
-				'show-icon-labels': showIconLabels,
+				'show-icon-labels': showIconLabels && isMediumOrLarger,
 			} ) }
 			aria-label={ toolbarAriaLabel }
 		>

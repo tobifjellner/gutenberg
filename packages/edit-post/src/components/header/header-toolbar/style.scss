@@ -19,6 +19,22 @@
 			display: flex;
 		}
 	}
+	&.show-icon-labels {
+		button[aria-label] {
+			display: inline-flex;
+			flex-wrap: nowrap;
+			&::after {
+				content: attr(aria-label);
+				display: block;
+				font-size: 12px;
+			}
+			&.is-primary {
+				&::after {
+					padding-right: 6px;
+				}
+			}
+		}
+	}
 }
 
 // Block toolbar when fixed to the top of the screen.
