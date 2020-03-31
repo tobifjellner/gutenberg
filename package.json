@@ -243,6 +243,9 @@
 		}
 	},
 	"lint-staged": {
+		"package-lock.json": [
+			"node ./bin/check-latest-npm.js"
+		],
 		"packages/*/package.json": [
 			"wp-scripts lint-pkg-json"
 		],
